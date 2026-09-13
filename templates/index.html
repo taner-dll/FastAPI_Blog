@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Hoş geldiniz</p>
+    <h1>FastAPI ile hazırlanan blog</h1>
+    <p>
+        Teknoloji, düşünceler ve günlük yazılar için modern bir blog arayüzü.
+    </p>
+    <div class="hero-actions">
+        <a href="/blog" class="btn btn-primary">Tüm yazıları gör</a>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card">
+        <strong>{{ total_posts }}</strong>
+        <span>Toplam yazı</span>
+    </div>
+    <div class="stat-card">
+        <strong>FastAPI</strong>
+        <span>Framework</span>
+    </div>
+    <div class="stat-card">
+        <strong>SQLite</strong>
+        <span>Veritabanı</span>
+    </div>
+</section>
+
+<section class="latest-posts">
+    <h2>Son Yazılar</h2>
+
+    {% if posts %}
+        <div class="posts-grid">
+            {% for post in posts %}
+                <article class="post-card">
+                    <span class="post-tag">Yazı</span>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.content[:120] }}{% if post.content|length > 120 %}...{% endif %}</p>
+                    <a href="/blog" class="text-link">Devamını oku</a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">Henüz hiç yazı eklenmemiş.</p>
+    {% endif %}
+</section>
+{% endblock %}
