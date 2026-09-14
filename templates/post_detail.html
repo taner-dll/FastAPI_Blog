@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<article class="post-detail">
+    <a href="/blog" class="back-link">← Blog yazılarına dön</a>
+
+    <div class="post-detail-header">
+        <span class="post-tag">Blog Yazısı</span>
+        <h1>{{ post.title }}</h1>
+    </div>
+
+    <div class="post-detail-content">
+        {{ post.content }}
+    </div>
+
+    <div id="post-actions" class="post-actions">
+        <h2>Yazıyı Düzenle</h2>
+
+        <form id="edit-post-form">
+            <input
+                type="text"
+                name="title"
+                value="{{ post.title }}"
+                required
+            >
+
+            <textarea name="content" rows="8" required>{{ post.content }}</textarea>
+
+            <div class="post-actions-buttons">
+                <button type="submit">Güncelle</button>
+                <button type="button" id="delete-post-btn">Yazıyı Sil</button>
+            </div>
+        </form>
+    </div>
+</article>
+{% endblock %}

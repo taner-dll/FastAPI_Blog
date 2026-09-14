@@ -77,6 +77,34 @@ def get_db():
     finally:
         db.close()
         
+# Authentication and User Management
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt 
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub") # type: ignore
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    return user         
+        
+        
+        
+# Page rendering endpoints
+        
 @app.get("/auth", response_class=HTMLResponse)
 async def read_auth(request: Request):
     return templates.TemplateResponse(
@@ -86,7 +114,6 @@ async def read_auth(request: Request):
             "title": "Giriş Yap",
         },
     )
-
 
 @app.post("/login")
 async def login_user(user: UserLogin, db: Session = Depends(get_db)):
@@ -109,29 +136,7 @@ async def login_user(user: UserLogin, db: Session = Depends(get_db)):
             "email": db_user.email,
         }
     }
-     
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt 
-
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub") # type: ignore
-        if username is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    
-    user = db.query(User).filter(User.username == username).first()
-    if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
-    
-    return user      
-        
+          
 @app.post("/register")
 async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     
@@ -175,7 +180,6 @@ async def profile_page(request: Request):
         context={"title": "Profil"}
     )
 
-
 @app.get("/profile")
 async def get_profile(current_user: User = Depends(get_current_user)):
     return {
@@ -183,8 +187,6 @@ async def get_profile(current_user: User = Depends(get_current_user)):
         "username": current_user.username,
         "email": current_user.email,
     }
-
-
 
 # Home page
 @app.get("/", response_class=HTMLResponse)
@@ -201,7 +203,6 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
         },
     )
 
-
 @app.get("/blog", response_class=HTMLResponse)
 async def blog_page(request: Request, db: Session = Depends(get_db)):
     posts = db.query(Post).order_by(Post.id.desc()).all()
@@ -210,14 +211,61 @@ async def blog_page(request: Request, db: Session = Depends(get_db)):
         name="posts.html",
         context={"title": "Blog Yazıları", "posts": posts},
     )
+    
+@app.get("/posts/create", response_class=HTMLResponse)
+async def create_post_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="create_post.html",
+        context={"title": "Yeni Yazı Oluştur"}
+    )
+
+@app.post("/posts/create")
+async def create_post_from_form(
+    post: PostCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    db_post = Post(title=post.title, content=post.content)
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+
+    return {
+        "message": "Yazı oluşturuldu",
+        "user": current_user.username,
+    }
+    
+@app.get("/post/{post_id}", response_class=HTMLResponse)
+async def post_detail_page(
+    post_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post bulunamadı")
+
+    return templates.TemplateResponse(
+        request=request,
+        name="post_detail.html",
+        context={
+            "title": post.title,
+            "post": post,
+        },
+    )
 
 
+
+
+
+#API -  Endpoints for Posts
 
 # Endpoint to get all posts
 @app.get("/posts")
 async def get_posts(db: Session = Depends(get_db)):
     return db.query(Post).all()
-
 
 # Post endpoint to get a specific post by ID
 @app.get("/posts/{post_id}")
@@ -238,15 +286,23 @@ async def create_post(post: PostCreate, db: Session = Depends(get_db)):
 
 # Endpoint to update an existing post
 @app.put("/posts/{post_id}")
-async def update_post(post_id: int, post: PostUpdate, db: Session = Depends(get_db)):
+async def update_post(
+    post_id: int,
+    post: PostUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     db_post = db.query(Post).filter(Post.id == post_id).first()
+
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    db_post.title = post.title  # type: ignore[assignment]
-    db_post.content = post.content # type: ignore[assignment]
+    db_post.title = post.title # type: ignore
+    db_post.content = post.content # type: ignore
+
     db.commit()
     db.refresh(db_post)
+
     return db_post
 
 # Endpoint to partially update an existing post
@@ -260,17 +316,27 @@ async def partial_update_post(post_id: int, post: PartialPostUpdate, db: Session
         db_post.title = post.title  # type: ignore
     if post.content is not None:
         db_post.content = post.content # type: ignore
-
     db.commit()
     db.refresh(db_post)
     return db_post
 
 # Endpoint to delete a post
 @app.delete("/posts/{post_id}")
-async def delete_post(post_id: int, db: Session = Depends(get_db)):
+async def delete_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     db_post = db.query(Post).filter(Post.id == post_id).first()
+
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
+
     db.delete(db_post)
     db.commit()
+
     return {"message": "Post deleted successfully"}
+
+
+
+

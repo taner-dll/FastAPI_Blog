@@ -1,15 +1,24 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>Blog Posts</h1>
-    <ul>
+<section class="blog-page">
+    <div class="page-header">
+        <h1>Blog Yazıları</h1>
+        <p>Son paylaşımlar</p>
+    </div>
+
+    <div class="post-grid">
         {% for post in posts %}
-            <li>
+            <article class="post-card">
                 <h2>{{ post.title }}</h2>
-                <p>{{ post.content }}</p>
-            </li>
-        {%else %}
-            <li>No posts available.</li>
+                <p>{{ post.content[:180] }}{% if post.content|length > 180 %}...{% endif %}</p>
+                <a href="/post/{{ post.id }}" class="text-link">
+                    Devamını oku
+                </a>
+            </article>
+        {% else %}
+            <div class="empty-state">Henüz yazı yok.</div>
         {% endfor %}
-    </ul>
+    </div>
+</section>
 {% endblock %}

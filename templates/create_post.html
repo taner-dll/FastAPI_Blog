@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="auth-box">
+    <h2>Yeni Yazı</h2>
+    <form id="create-post-form">
+        <input type="text" name="title" placeholder="Başlık" required>
+        <textarea name="content" rows="6" placeholder="İçerik" required></textarea>
+        <button type="submit">Yazıyı Yayınla</button>
+    </form>
+</section>
+{% endblock %}
