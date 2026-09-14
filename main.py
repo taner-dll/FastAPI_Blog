@@ -166,9 +166,24 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     }
 
 
+@app.get("/profile-page", response_class=HTMLResponse)
+async def profile_page(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="profile.html",
+        context={"title": "Profil"}
+    )
+
+
 @app.get("/profile")
 async def get_profile(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "username": current_user.username, "email": current_user.email}
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+    }
+
 
 
 # Home page

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
     <script src="{{ url_for('static', path='js/auth.js') }}"></script>
 </head>
+
 <body>
     <header class="site-header">
         <div class="container nav-container">
@@ -14,6 +16,9 @@
             <nav class="main-nav" aria-label="Ana navigasyon">
                 <a href="/">Ana Sayfa</a>
                 <a href="/blog">Blog</a>
+                <a href="/auth" id="auth-link">Giriş</a>
+                <a href="/profile-page" id="profile-link" style="display:none;">Profil</a>
+                <button id="logout-link" style="display:none;">Çıkış</button>
             </nav>
         </div>
     </header>
@@ -28,4 +33,5 @@
         </div>
     </footer>
 </body>
+
 </html>

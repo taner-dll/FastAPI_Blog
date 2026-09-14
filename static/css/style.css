@@ -285,6 +285,25 @@ body {
     cursor: pointer;
 }
 
+.profile-box {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+#logout-btn {
+    margin-top: 1rem;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 10px;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+}
+
 @media (max-width: 700px) {
     .site-header .container {
         flex-direction: column;

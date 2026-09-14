@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{# check user is authenticated #}
+
+
+<section class="profile-box">
+    <h1>Profil</h1>
+    <p><strong>Kullanıcı:</strong> <span id="profile-username"></span></p>
+    <p><strong>E-posta:</strong> <span id="profile-email"></span></p>
+    <button id="logout-btn">Çıkış Yap</button>
+</section>
+
+
+{% endblock %}
