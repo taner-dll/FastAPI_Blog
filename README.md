@@ -13,7 +13,7 @@ The application provides a browser-based interface for reading, creating, updati
 - Authenticated user profile page
 - Protected post creation, update, and deletion
 - SQLite database with SQLAlchemy models
-- Pydantic request models in the `entities/` package
+- Pydantic request models in the `schemas/` package
 - Shared Jinja2 layout and static CSS/JavaScript files
 - Responsive blog and authentication interface
 
@@ -36,10 +36,24 @@ The application provides a browser-based interface for reading, creating, updati
 FastAPI_Blog/
 ├── main.py
 ├── blog.db
-├── entities/
+├── database.py
+├── dependencies.py
+├── models/
 │   ├── __init__.py
 │   ├── post.py
 │   └── user.py
+├── schemas/
+│   ├── __init__.py
+│   ├── post.py
+│   └── user.py
+├── controllers/
+│   ├── __init__.py
+│   ├── auth_controller.py
+│   ├── page_controller.py
+│   └── post_controller.py
+├── services/
+│   ├── __init__.py
+│   └── auth_service.py
 ├── templates/
 │   ├── layout.html
 │   ├── index.html
@@ -174,6 +188,19 @@ sqlite:///./blog.db
 
 The database is initialized through SQLAlchemy when the application starts. The local database file is ignored by Git.
 
+## MVC Architecture
+
+The application follows a practical MVC-style structure:
+
+- `models/` contains SQLAlchemy database models.
+- `schemas/` contains Pydantic request and response schemas.
+- `controllers/` contains FastAPI routers for pages, authentication, and posts.
+- `services/` contains reusable business logic such as password hashing and JWT creation.
+- `templates/` is the View layer and contains Jinja2 templates.
+- `database.py` contains the SQLAlchemy engine, session factory, and database dependency.
+- `dependencies.py` contains shared authentication dependencies.
+- `main.py` initializes the application and registers the controllers.
+
 ## Security Notes
 
 Before deploying to production:
@@ -186,8 +213,11 @@ Before deploying to production:
 
 ## Development Notes
 
-- `main.py` contains the application, routes, authentication helpers, and SQLAlchemy models.
-- `entities/` contains Pydantic request schemas.
+- `main.py` is the application entrypoint and router registry.
+- `models/` contains SQLAlchemy database models.
+- `schemas/` contains Pydantic request schemas.
+- `controllers/` contains HTTP route handlers.
+- `services/` contains authentication business logic.
 - `templates/` contains Jinja2 pages.
 - `static/css/style.css` contains the application styles.
 - `static/js/auth.js` handles login, registration, logout, route guards, and post actions.
