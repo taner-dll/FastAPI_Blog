@@ -13,7 +13,7 @@ The application provides a browser-based interface for reading, creating, updati
 - Authenticated user profile page
 - Protected post creation, update, and deletion
 - SQLite database with SQLAlchemy models
-- Pydantic request models in the `schemas/` package
+- Pydantic request and response models in the `schemas/` package
 - Shared Jinja2 layout and static CSS/JavaScript files
 - Responsive blog and authentication interface
 
@@ -193,7 +193,7 @@ The database is initialized through SQLAlchemy when the application starts. The 
 The application follows a practical MVC-style structure:
 
 - `models/` contains SQLAlchemy database models.
-- `schemas/` contains Pydantic request and response schemas.
+- `schemas/` is the only Pydantic schema package and contains request and response schemas.
 - `controllers/` contains FastAPI routers for pages, authentication, and posts.
 - `services/` contains reusable business logic such as password hashing and JWT creation.
 - `templates/` is the View layer and contains Jinja2 templates.
