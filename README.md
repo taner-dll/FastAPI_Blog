@@ -1,111 +1,193 @@
 ﻿# FastAPI Blog
 
-FastAPI ile geliştirilmiş, SQLite veritabanı kullanan bir blog web uygulamasıdır. Uygulama ana sayfa, blog listesi ve yazı verilerini yönetmek için temel web arayüzü sunar.
+A blog web application built with FastAPI, SQLite, SQLAlchemy, Jinja2 templates, and JWT authentication.
 
-## Özellikler
+The application provides a browser-based interface for reading, creating, updating, and deleting blog posts, as well as REST API endpoints for post operations.
 
-- Ana sayfa tasarımı
-- Blog yazıları listesi
-- Jinja2 şablon sistemi
-- Statik CSS dosyaları
-- SQLite veritabanı ile veri saklama
-- SQLAlchemy ile model yönetimi
-- CRUD tabanlı içerik işlemleri
+## Features
 
-## Teknoloji Stack
+- Homepage with recent posts and post count
+- Blog post listing and detail pages
+- User registration and login
+- JWT bearer-token authentication
+- Authenticated user profile page
+- Protected post creation, update, and deletion
+- SQLite database with SQLAlchemy models
+- Pydantic request models in the `entities/` package
+- Shared Jinja2 layout and static CSS/JavaScript files
+- Responsive blog and authentication interface
 
-- Python
+## Technology Stack
+
+- Python 3.10+
 - FastAPI
-- Jinja2
+- Uvicorn
 - SQLAlchemy
 - SQLite
-- HTML / CSS
+- Jinja2
+- Pydantic
+- PyJWT
+- Passlib with Argon2
+- HTML, CSS, and JavaScript
 
-## Proje Yapısı
+## Project Structure
 
 ```text
 FastAPI_Blog/
 ├── main.py
 ├── blog.db
-├── static/
-│   └── css/
-│       └── style.css
+├── entities/
+│   ├── __init__.py
+│   ├── post.py
+│   └── user.py
 ├── templates/
 │   ├── layout.html
 │   ├── index.html
-│   └── posts.html
-├── entities/
-│   ├── __init__.py
-│   └── post.py
+│   ├── posts.html
+│   ├── post_detail.html
+│   ├── auth.html
+│   ├── profile.html
+│   └── create_post.html
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── auth.js
 ├── .gitignore
-├── README.md
-└── .venv/
+└── README.md
 ```
 
-## Gereksinimler
+## Requirements
 
-- Python 3.10+
+- Python 3.10 or newer
 - pip
 
-## Kurulum
+## Installation
 
-1. Sanal ortam oluştur:
+Create and activate a virtual environment:
 
 ```bash
 python -m venv .venv
 ```
 
-2. Sanal ortamı aktif et:
-
-Windows PowerShell:
+On Windows PowerShell:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-3. Bağımlılıkları yükle:
+Install the dependencies:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy jinja2
+pip install fastapi uvicorn sqlalchemy jinja2 pyjwt passlib argon2-cffi
 ```
 
-## Çalıştırma
+## Running the Application
 
-Proje kök dizininde şu komutu çalıştır:
+Start the development server from the project root:
 
 ```bash
 python -m uvicorn main:app --reload
 ```
 
-Uygulama açıldığında tarayıcıda şu adrese gidilir:
+Open the application at:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-## Sayfalar
+The database file is created automatically as `blog.db` when the application starts.
 
-- `/` → Ana sayfa
-- `/blog` → Blog yazıları listesi
+## Web Pages
 
-## API Endpointleri
+| Route | Description |
+| --- | --- |
+| `/` | Homepage |
+| `/blog` | Blog post listing |
+| `/post/{post_id}` | Blog post detail page |
+| `/auth` | Login and registration page |
+| `/profile-page` | Authenticated profile page |
+| `/posts/create` | Authenticated post creation page |
 
-Uygulama aynı zamanda temel CRUD işlemleri için API rotaları da içerir:
+## Authentication
 
-- `GET /posts`
-- `GET /posts/{post_id}`
-- `POST /posts`
-- `PUT /posts/{post_id}`
-- `PATCH /posts/{post_id}`
-- `DELETE /posts/{post_id}`
+The application uses JWT tokens. After login or registration, the token is stored in the browser's `localStorage` and sent with protected requests using:
 
-## Notlar
+```http
+Authorization: Bearer <access_token>
+```
 
-- Veritabanı dosyası: `blog.db`
-- Görünüm dosyaları: `templates/`
-- Statik stil dosyaları: `static/css/`
-- Şablon tabanlı yapı sayesinde ana sayfa ve blog sayfası tek bir düzeni kullanır
+Authentication is required for:
 
-## Geliştirme
+- Creating a post through `/posts/create`
+- Updating a post
+- Partially updating a post
+- Deleting a post
+- Loading the authenticated profile
 
-Projeyi geliştirmek için yeni sayfalar ekleyebilir, CSS tasarımını düzenleyebilir ve veritabanı modelini genişletebilirsiniz.
+Any authenticated user can update or delete posts. Ownership and administrator roles are not used.
+
+## API Endpoints
+
+### Authentication
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `POST` | `/register` | Register a user and receive a JWT token |
+| `POST` | `/login` | Authenticate a user and receive a JWT token |
+| `GET` | `/profile` | Return the current user's profile |
+
+### Posts
+
+| Method | Route | Authentication |
+| --- | --- | --- |
+| `GET` | `/posts` | Not required |
+| `GET` | `/posts/{post_id}` | Not required |
+| `POST` | `/posts` | Not required |
+| `POST` | `/posts/create` | Required |
+| `PUT` | `/posts/{post_id}` | Required |
+| `PATCH` | `/posts/{post_id}` | Required |
+| `DELETE` | `/posts/{post_id}` | Required |
+
+Example update request:
+
+```http
+PUT /posts/1
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+```json
+{
+	"title": "Updated title",
+	"content": "Updated content"
+}
+```
+
+## Database
+
+The application uses SQLite with this database URL:
+
+```text
+sqlite:///./blog.db
+```
+
+The database is initialized through SQLAlchemy when the application starts. The local database file is ignored by Git.
+
+## Security Notes
+
+Before deploying to production:
+
+- Move `SECRET_KEY` to an environment variable.
+- Use a production-grade database and migrations.
+- Enable HTTPS.
+- Add stricter input validation and error handling.
+- Avoid exposing secrets in source code.
+
+## Development Notes
+
+- `main.py` contains the application, routes, authentication helpers, and SQLAlchemy models.
+- `entities/` contains Pydantic request schemas.
+- `templates/` contains Jinja2 pages.
+- `static/css/style.css` contains the application styles.
+- `static/js/auth.js` handles login, registration, logout, route guards, and post actions.

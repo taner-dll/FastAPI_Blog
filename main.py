@@ -161,8 +161,12 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
 
+    access_token = create_access_token(data={"sub": db_user.username})
+
     return {
         "message": "Kayıt başarılı",
+        "access_token": access_token,
+        "token_type": "bearer",
         "user": {
             "id": db_user.id,
             "username": db_user.username,
@@ -307,7 +311,12 @@ async def update_post(
 
 # Endpoint to partially update an existing post
 @app.patch("/posts/{post_id}")
-async def partial_update_post(post_id: int, post: PartialPostUpdate, db: Session = Depends(get_db)):
+async def partial_update_post(
+    post_id: int,
+    post: PartialPostUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     db_post = db.query(Post).filter(Post.id == post_id).first()
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
