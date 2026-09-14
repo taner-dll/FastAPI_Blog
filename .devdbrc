@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "d:\\Python Projects\\FastAPI_Blog\\blog.db"
+  }
+]

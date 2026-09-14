@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="auth-box">
+    <div class="auth-tabs">
+        <button class="tab-btn active" data-tab="login">Giriş</button>
+        <button class="tab-btn" data-tab="register">Kayıt</button>
+    </div>
+
+    <div id="login-form-box" class="auth-form active">
+        <h2>Giriş Yap</h2>
+        <form id="login-form">
+            <input type="text" name="username" placeholder="Kullanıcı adı" required>
+            <input type="password" name="password" placeholder="Şifre" required>
+            <button type="submit">Giriş</button>
+        </form>
+    </div>
+
+    <div id="register-form-box" class="auth-form">
+        <h2>Kayıt Ol</h2>
+        <form id="register-form">
+            <input type="text" name="username" placeholder="Kullanıcı adı" required>
+            <input type="email" name="email" placeholder="E-posta" required>
+            <input type="password" name="password" placeholder="Şifre" required>
+            <button type="submit">Kayıt</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
